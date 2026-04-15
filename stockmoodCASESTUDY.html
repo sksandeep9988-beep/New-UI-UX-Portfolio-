@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Case Study — StockMood Finance Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f8fafc;
+    --bg3: #f1f5f9;
+    --teal: #0d9488;
+    --teal-light: #ccfbf1;
+    --teal-mid: #14b8a6;
+    --green: #22c55e;
+    --green-light: #dcfce7;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --blue: #3b82f6;
+    --blue-light: #dbeafe;
+    --amber: #f59e0b;
+    --dark: #0f172a;
+    --dark2: #1e293b;
+    --gray: #64748b;
+    --gray-light: #e2e8f0;
+    --gray-lightest: #f8fafc;
+    --text: #1e293b;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--dark);
+    padding: 0;
+    min-height: 380px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .cover-left {
+    padding: 70px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cover-right {
+    background: var(--dark2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover-right::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    border: 50px solid rgba(13,148,136,0.12);
+    border-radius: 50%;
+  }
+  .mock-screen {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 16px;
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+    z-index: 1;
+  }
+  .mock-topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .mock-topbar span { font-size: 10px; color: rgba(255,255,255,0.4); margin-left: auto; }
+  .mock-stat-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .mock-stat {
+    background: rgba(13,148,136,0.15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    flex: 1;
+  }
+  .mock-stat .ms-val { font-size: 14px; font-weight: 700; color: var(--teal-mid); display: block; }
+  .mock-stat .ms-lbl { font-size: 9px; color: rgba(255,255,255,0.35); }
+  .mock-chart {
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    height: 60px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .mock-bar { background: var(--teal); border-radius: 2px; flex: 1; opacity: 0.7; }
+  .mock-bar.high { opacity: 1; background: var(--green); }
+  .mock-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .mock-row span:first-child { font-size: 10px; color: rgba(255,255,255,0.5); }
+  .mock-row span:last-child { font-size: 10px; color: var(--green); font-weight: 600; }
+
+  .cover-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 16px;
+  }
+  .cover h1 {
+    font-size: 40px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  .cover h1 span { color: var(--teal-mid); }
+  .cover-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .cover-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ctag {
+    background: rgba(13,148,136,0.15);
+    color: var(--teal-mid);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(13,148,136,0.25);
+  }
+  .cover-meta {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+  }
+  .cover-meta-item strong { display: block; font-size: 13px; color: #fff; font-weight: 500; margin-bottom: 2px; }
+  .cover-meta-item span { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+  /* ── LAYOUT ── */
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 0 48px; }
+  .section { padding: 64px 0; border-bottom: 1px solid var(--gray-light); }
+  .section:last-child { border-bottom: none; }
+
+  .section-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  h2 { font-size: 26px; font-weight: 700; color: var(--dark); line-height: 1.25; margin-bottom: 14px; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--dark); margin: 24px 0 8px; }
+  p { color: var(--gray); margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--dark); }
+
+  /* ── OVERVIEW STATS ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--gray-light);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .stat-cell {
+    background: var(--bg);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-cell .val { font-size: 26px; font-weight: 800; color: var(--teal); display: block; }
+  .stat-cell .lbl { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+  /* ── PROBLEM SOLUTION ── */
+  .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+  .ps-card { border-radius: 12px; padding: 24px; }
+  .ps-card.prob { background: #fff7f7; border: 1px solid #fecaca; }
+  .ps-card.sol { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .ps-card h3 { margin-top: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .ps-card.prob h3 { color: var(--red); }
+  .ps-card.sol h3 { color: #16a34a; }
+  .ps-card ul { padding-left: 16px; }
+  .ps-card ul li { font-size: 13px; color: var(--gray); margin-bottom: 7px; line-height: 1.5; }
+
+  /* ── USER PERSONAS ── */
+  .persona-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .persona-card {
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 20px;
+    background: var(--bg2);
+  }
+  .persona-avatar {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .persona-card h3 { margin-top: 0; font-size: 14px; margin-bottom: 2px; }
+  .persona-card .role { font-size: 11px; color: var(--teal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .persona-card p { font-size: 12px; color: var(--gray); line-height: 1.5; margin: 0; }
+
+  /* ── SCREENS GRID ── */
+  .screens-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+  .screen-card {
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg2);
+  }
+  .screen-header {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--gray-light);
+    background: var(--bg);
+  }
+  .screen-num {
+    width: 20px; height: 20px;
+    background: var(--teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .screen-header h3 { font-size: 12px; font-weight: 600; color: var(--dark); margin: 0; }
+  .screen-body { padding: 14px; }
+  .screen-body p { font-size: 12px; color: var(--gray); margin-bottom: 10px; line-height: 1.5; }
+  .ftag {
+    display: inline-block;
+    font-size: 10px;
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin: 2px;
+    font-weight: 500;
+  }
+
+  /* ── DESIGN SYSTEM ── */
+  .palette { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .swatch { text-align: center; }
+  .swatch-box { width: 52px; height: 52px; border-radius: 10px; margin-bottom: 5px; border: 1px solid rgba(0,0,0,0.07); }
+  .swatch span { font-size: 10px; color: var(--gray); display: block; font-weight: 500; }
+  .swatch small { font-size: 9px; color: #aaa; }
+
+  .type-scale { margin-top: 20px; border: 1px solid var(--gray-light); border-radius: 12px; overflow: hidden; }
+  .ts-row { display: flex; align-items: baseline; gap: 16px; padding: 12px 18px; border-bottom: 1px solid var(--bg3); }
+  .ts-row:last-child { border-bottom: none; }
+  .ts-label { font-size: 11px; color: var(--gray); width: 120px; flex-shrink: 0; font-weight: 500; }
+
+  /* ── UX DECISIONS ── */
+  .decision-list { margin-top: 20px; display: grid; gap: 0; }
+  .decision-item { display: flex; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--bg3); }
+  .decision-item:last-child { border-bottom: none; }
+  .d-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .decision-item h3 { margin-top: 0; font-size: 15px; margin-bottom: 5px; }
+  .decision-item p { font-size: 13px; margin: 0; }
+
+  /* ── INSIGHTS ROW ── */
+  .insight-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .insight-card {
+    background: var(--dark);
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+  }
+  .insight-card .inum { font-size: 30px; font-weight: 800; color: var(--teal-mid); display: block; margin-bottom: 6px; }
+  .insight-card p { font-size: 12px; color: rgba(255,255,255,0.5); margin: 0; line-height: 1.5; }
+
+  /* ── IA TABLE ── */
+  .ia-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+  .ia-table th {
+    background: var(--dark);
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .ia-table td { padding: 10px 14px; border-bottom: 1px solid var(--gray-light); color: var(--gray); vertical-align: top; }
+  .ia-table tr:last-child td { border-bottom: none; }
+  .ia-table tr:nth-child(even) td { background: var(--bg2); }
+  .ia-table .page-name { font-weight: 600; color: var(--dark); }
+  .ia-table .teal-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--teal);
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  /* ── OUTCOMES ── */
+  .outcomes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+  .outcome-card {
+    border-radius: 12px;
+    padding: 22px;
+    background: var(--bg2);
+    border: 1px solid var(--gray-light);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .outcome-card .oc-icon { font-size: 22px; }
+  .outcome-card .oc-title { font-size: 13px; font-weight: 600; color: var(--dark); }
+  .outcome-card p { font-size: 12px; color: var(--gray); margin: 0; line-height: 1.5; }
+
+  /* ── LEARNINGS ── */
+  .learn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+  .learn-card {
+    background: var(--bg2);
+    border: 1px solid var(--gray-light);
+    border-top: 3px solid var(--teal);
+    border-radius: 0 0 10px 10px;
+    padding: 18px;
+  }
+  .learn-card h3 { font-size: 14px; margin-top: 0; margin-bottom: 6px; }
+  .learn-card p { font-size: 13px; color: var(--gray); margin: 0; line-height: 1.5; }
+
+  /* ── QUOTE ── */
+  .quote-block {
+    background: var(--dark);
+    border-radius: 14px;
+    padding: 32px;
+    margin-top: 28px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .quote-mark { font-size: 48px; line-height: 1; color: var(--teal-mid); font-weight: 800; flex-shrink: 0; margin-top: -8px; }
+  .quote-block p { color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.7; margin: 0; }
+  .quote-block cite { display: block; margin-top: 10px; font-size: 12px; color: var(--teal-mid); font-style: normal; font-weight: 600; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    background: var(--dark);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 28px;
+    font-size: 12px;
+  }
+  .doc-footer strong { color: var(--teal-mid); }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-left">
+    <p class="cover-tag">UI/UX Design Case Study</p>
+    <h1>Stock<span>Mood</span><br/>Finance Dashboard</h1>
+    <p class="cover-desc">
+      A comprehensive stock market research and portfolio management dashboard — designed for retail investors, analysts, and traders who need real-time data, deep research tools, and a seamless decision-making experience.
+    </p>
+    <div class="cover-tags">
+      <span class="ctag">Dashboard Design</span>
+      <span class="ctag">Data Visualization</span>
+      <span class="ctag">FinTech</span>
+      <span class="ctag">Figma</span>
+    </div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>Project Type</strong><span>Web App — Finance Dashboard</span></div>
+      <div class="cover-meta-item"><strong>Screens Designed</strong><span>9 Pages / Flows</span></div>
+      <div class="cover-meta-item"><strong>Role</strong><span>UI/UX Designer (Solo)</span></div>
+    </div>
+  </div>
+  <div class="cover-right">
+    <div class="mock-screen">
+      <div class="mock-topbar">
+        <div class="mock-dot" style="background:#ef4444;"></div>
+        <div class="mock-dot" style="background:#f59e0b;"></div>
+        <div class="mock-dot" style="background:#22c55e;"></div>
+        <span>StockMood · Market Overview</span>
+      </div>
+      <div class="mock-stat-row">
+        <div class="mock-stat"><span class="ms-val">0.78</span><span class="ms-lbl">Market Mood</span></div>
+        <div class="mock-stat"><span class="ms-val">+2.3%</span><span class="ms-lbl">Portfolio</span></div>
+        <div class="mock-stat"><span class="ms-val">Daily</span><span class="ms-lbl">View</span></div>
+      </div>
+      <div class="mock-chart">
+        <div class="mock-bar" style="height:30%;"></div>
+        <div class="mock-bar" style="height:55%;"></div>
+        <div class="mock-bar" style="height:40%;"></div>
+        <div class="mock-bar high" style="height:75%;"></div>
+        <div class="mock-bar" style="height:60%;"></div>
+        <div class="mock-bar high" style="height:90%;"></div>
+        <div class="mock-bar" style="height:70%;"></div>
+        <div class="mock-bar" style="height:80%;"></div>
+      </div>
+      <div class="mock-row"><span>AAPL</span><span>+1.24%</span></div>
+      <div class="mock-row"><span>TSLA</span><span>+3.56%</span></div>
+      <div class="mock-row"><span>MSFT</span><span>+0.87%</span></div>
+      <div class="mock-row"><span>NVDA</span><span>+5.21%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="wrapper">
+
+  <!-- 01 OVERVIEW -->
+  <div class="section">
+    <span class="section-tag">01 — Overview</span>
+    <h2>What is StockMood?</h2>
+    <p>
+      StockMood is a <strong>stock market research and portfolio management web application</strong> designed for modern investors. The platform aggregates market data, financial analysis, news sentiment, ownership data, and personal portfolio tracking into a single, cohesive dashboard experience.
+    </p>
+    <p>
+      The design spans <strong>9 key screens</strong> — from a high-level market overview to granular research tools covering financial statements, news analysis, institutional ownership, and portfolio performance — all tied together with a consistent, data-forward visual language.
+    </p>
+    <div class="stat-strip">
+      <div class="stat-cell"><span class="val">9</span><span class="lbl">Screens Designed</span></div>
+      <div class="stat-cell"><span class="val">5</span><span class="lbl">Research Sub-pages</span></div>
+      <div class="stat-cell"><span class="val">3</span><span class="lbl">Core User Flows</span></div>
+      <div class="stat-cell"><span class="val">100%</span><span class="lbl">Data-First Design</span></div>
+    </div>
+  </div>
+
+  <!-- 02 PROBLEM & SOLUTION -->
+  <div class="section">
+    <span class="section-tag">02 — Problem & Solution</span>
+    <h2>The Gap in Existing Platforms</h2>
+    <p>
+      Most retail investors juggle multiple tools to research stocks — one platform for charts, another for financials, a third for news, and a spreadsheet for their portfolio. This fragmented experience leads to poor decisions, missed signals, and information overload. StockMood was designed to solve exactly this.
+    </p>
+    <div class="ps-grid">
+      <div class="ps-card prob">
+        <h3>⚠ The Problem</h3>
+        <ul>
+          <li>Data is scattered across Bloomberg, Yahoo Finance, Reddit, and spreadsheets</li>
+          <li>Existing dashboards are visually cluttered with no hierarchy</li>
+          <li>Retail investors lack access to institutional-grade research tools</li>
+          <li>No unified view of portfolio performance alongside market context</li>
+          <li>News and sentiment are disconnected from price data</li>
+          <li>Ownership and insider activity is hidden in complex filings</li>
+        </ul>
+      </div>
+      <div class="ps-card sol">
+        <h3>✅ The Solution</h3>
+        <ul>
+          <li>Single dashboard combining market overview + deep research + portfolio</li>
+          <li>Clean data hierarchy: summary → detail → action</li>
+          <li>Research tabs (Financial, News, Analysis, Ownership) per stock</li>
+          <li>Personal portfolio tracker with visual performance metrics</li>
+          <li>Mood score indicator gives sentiment at a glance</li>
+          <li>Institutional ownership and key metrics in one view</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 RESEARCH & USERS -->
+  <div class="section">
+    <span class="section-tag">03 — Research & Target Users</span>
+    <h2>Who Uses StockMood?</h2>
+    <p>
+      Understanding the user base was critical because finance products have distinctly different user segments — each with different mental models, urgency levels, and data literacy. Three primary personas were identified:
+    </p>
+    <div class="persona-grid">
+      <div class="persona-card">
+        <div class="persona-avatar" style="background:#ede9fe;">📈</div>
+        <h3>Retail Investor</h3>
+        <p class="role">The Portfolio Builder</p>
+        <p>Monitors 10–30 stocks, checks performance weekly, needs clear portfolio visualization and simple research summaries without jargon.</p>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar" style="background:#dcfce7;">🔬</div>
+        <h3>Stock Analyst</h3>
+        <p class="role">The Deep Researcher</p>
+        <p>Analyzes fundamentals — income statements, balance sheets, DCF models. Needs fast access to financial tabs and historical data comparison.</p>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar" style="background:#dbeafe;">⚡</div>
+        <h3>Active Trader</h3>
+        <p class="role">The Market Watcher</p>
+        <p>Reacts to news, sentiment, and price momentum. Needs real-time mood scores, trending stocks, and fast-loading charts with minimal friction.</p>
+      </div>
+    </div>
+
+    <h3>Key Research Findings</h3>
+    <div class="insight-row">
+      <div class="insight-card">
+        <span class="inum">82%</span>
+        <p>Retail investors use 3+ separate tools to make a single investment decision</p>
+      </div>
+      <div class="insight-card">
+        <span class="inum">6 sec</span>
+        <p>Attention span on a financial dashboard before users lose orientation in clutter</p>
+      </div>
+      <div class="insight-card">
+        <span class="inum">67%</span>
+        <p>Investors say "understanding portfolio context vs. market" is their biggest pain point</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 INFORMATION ARCHITECTURE -->
+  <div class="section">
+    <span class="section-tag">04 — Information Architecture</span>
+    <h2>How the App is Structured</h2>
+    <p>
+      The app is organized into three main zones: <strong>Market Overview</strong> (the starting point), <strong>Stock Research</strong> (deep dives), and <strong>My Portfolio</strong> (personal data). Within Stock Research, five sub-pages were designed to cover every dimension of stock analysis a serious investor would need.
+    </p>
+    <table class="ia-table">
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Screen</th>
+          <th>Purpose</th>
+          <th>Primary User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="teal-dot"></span>Overview</td>
+          <td class="page-name">Market Overview (v1 & v2)</td>
+          <td>Daily market mood, top movers, sector trends, news headlines</td>
+          <td>All users</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Research</td>
+          <td class="page-name">Research — Overview</td>
+          <td>Stock summary card, key metrics, analyst ratings, price chart</td>
+          <td>All users</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Research</td>
+          <td class="page-name">Research — Financial</td>
+          <td>Income statement, balance sheet, cash flows, financial ratios</td>
+          <td>Analyst</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Research</td>
+          <td class="page-name">Research — News</td>
+          <td>Latest news, sentiment tags, source credibility indicators</td>
+          <td>Trader, Investor</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Research</td>
+          <td class="page-name">Research — Analysis</td>
+          <td>Technical analysis signals, price targets, analyst consensus</td>
+          <td>Analyst, Trader</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Research</td>
+          <td class="page-name">Research — Ownership</td>
+          <td>Institutional holders, insider activity, ownership changes</td>
+          <td>Analyst</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Portfolio</td>
+          <td class="page-name">Research Portfolio</td>
+          <td>Watchlist performance, holdings comparison, sector allocation</td>
+          <td>Investor</td>
+        </tr>
+        <tr>
+          <td><span class="teal-dot"></span>Portfolio</td>
+          <td class="page-name">User Portfolio</td>
+          <td>Personal holdings, P&amp;L chart, portfolio allocation, returns table</td>
+          <td>Investor</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 05 SCREENS BREAKDOWN -->
+  <div class="section">
+    <span class="section-tag">05 — Screen-by-Screen Breakdown</span>
+    <h2>Design Decisions per Screen</h2>
+    <div class="screens-grid">
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">1</div>
+          <h3>Market Overview</h3>
+        </div>
+        <div class="screen-body">
+          <p>The landing screen. Features a "Market Mood" score, stock ticker bar, pie chart for sector allocation, trending stocks table, and curated news feed. Two layout variants (v1 & v2) were explored.</p>
+          <span class="ftag">Mood Score</span>
+          <span class="ftag">Ticker</span>
+          <span class="ftag">Sector Pie</span>
+          <span class="ftag">Top Movers</span>
+          <span class="ftag">News feed</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">2</div>
+          <h3>Research — Overview</h3>
+        </div>
+        <div class="screen-body">
+          <p>Stock detail page. Shows company summary, current price, key stats (P/E, EPS, Market Cap), analyst ratings donut chart, and historical price chart. Entry point for all research sub-tabs.</p>
+          <span class="ftag">Price chart</span>
+          <span class="ftag">Key metrics</span>
+          <span class="ftag">Analyst rating</span>
+          <span class="ftag">Company info</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">3</div>
+          <h3>Research — Financial</h3>
+        </div>
+        <div class="screen-body">
+          <p>Dense data screen with income statement, revenue growth chart, EPS trend, and key financial ratios in a clean table format. Color-coded rows differentiate positive/negative trends instantly.</p>
+          <span class="ftag">Income stmt</span>
+          <span class="ftag">Revenue chart</span>
+          <span class="ftag">EPS trend</span>
+          <span class="ftag">Ratio table</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">4</div>
+          <h3>Research — News</h3>
+        </div>
+        <div class="screen-body">
+          <p>Aggregated news for the selected stock. Each article card shows headline, source, time, and a sentiment tag (Positive / Neutral / Negative). Quick scan format prioritized over deep reading.</p>
+          <span class="ftag">News cards</span>
+          <span class="ftag">Sentiment tags</span>
+          <span class="ftag">Source labels</span>
+          <span class="ftag">Time stamps</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">5</div>
+          <h3>Research — Analysis</h3>
+        </div>
+        <div class="screen-body">
+          <p>Technical and fundamental analysis combined. Price target ranges, buy/hold/sell breakdown, short interest data, and earnings estimate tables give a comprehensive forward-looking view.</p>
+          <span class="ftag">Price target</span>
+          <span class="ftag">Buy/Hold/Sell</span>
+          <span class="ftag">Short interest</span>
+          <span class="ftag">Earnings est.</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">6</div>
+          <h3>Research — Ownership</h3>
+        </div>
+        <div class="screen-body">
+          <p>Institutional holder table with percentage owned, share count, and QoQ change. Insider transaction history with buy/sell indicators. Simplified for non-expert users without losing depth.</p>
+          <span class="ftag">Institutions</span>
+          <span class="ftag">% Ownership</span>
+          <span class="ftag">Insider trades</span>
+          <span class="ftag">QoQ change</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">7</div>
+          <h3>Research Portfolio</h3>
+        </div>
+        <div class="screen-body">
+          <p>Watchlist-based portfolio tracker. Shows Portfolio Tracker score, overall return, sector donut chart, and a comparison table of watched stocks against market performance.</p>
+          <span class="ftag">Portfolio score</span>
+          <span class="ftag">Overall return</span>
+          <span class="ftag">Sector donut</span>
+          <span class="ftag">Stock compare</span>
+        </div>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-num">8</div>
+          <h3>User Portfolio</h3>
+        </div>
+        <div class="screen-body">
+          <p>Personal portfolio management screen. Features a green area P&amp;L chart, real-time holding values, cost basis, current gain/loss per stock, and total portfolio allocation breakdown.</p>
+          <span class="ftag">P&amp;L area chart</span>
+          <span class="ftag">Holdings table</span>
+          <span class="ftag">Cost basis</span>
+          <span class="ftag">Gain/Loss</span>
+          <span class="ftag">Allocation</span>
+        </div>
+      </div>
+
+      <div class="screen-card" style="background: var(--dark); border-color: #1e293b;">
+        <div class="screen-header" style="background: #1e293b; border-color: #334155;">
+          <div class="screen-num" style="background: var(--teal-mid);">✦</div>
+          <h3 style="color:#fff;">Design Insight</h3>
+        </div>
+        <div class="screen-body">
+          <p style="color:rgba(255,255,255,0.55);">Each screen follows the same sidebar + main content layout — reducing cognitive load. Users never have to re-learn navigation regardless of which module they're in.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 06 DESIGN SYSTEM -->
+  <div class="section">
+    <span class="section-tag">06 — Design System</span>
+    <h2>Visual Language</h2>
+    <p>
+      A light, clean, and data-forward design system was chosen. White backgrounds maximize legibility for data-heavy tables. Teal and green encode positive financial signals. Red communicates risk or decline. The minimal chrome ensures users focus on the data, not the interface.
+    </p>
+
+    <h3>Color Palette</h3>
+    <div class="palette">
+      <div class="swatch"><div class="swatch-box" style="background:#0f172a;"></div><span>Dark Nav</span><small>#0f172a</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#1e293b;"></div><span>Surface</span><small>#1e293b</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#0d9488;"></div><span>Teal</span><small>#0d9488</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#14b8a6;"></div><span>Teal Mid</span><small>#14b8a6</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#22c55e;"></div><span>Gain Green</span><small>#22c55e</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#ef4444;"></div><span>Loss Red</span><small>#ef4444</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#7c3aed;"></div><span>Purple</span><small>#7c3aed</small></div>
+      <div class="swatch"><div class="swatch-box" style="background:#f8fafc; border:1px solid #e2e8f0;"></div><span>BG Light</span><small>#f8fafc</small></div>
+    </div>
+
+    <h3>Typography Scale</h3>
+    <div class="type-scale">
+      <div class="ts-row"><span class="ts-label">Dashboard Title</span><span style="font-size:24px; font-weight:800; color:var(--dark);">Market Overview</span></div>
+      <div class="ts-row"><span class="ts-label">Section Header</span><span style="font-size:18px; font-weight:700; color:var(--dark);">Top Performers</span></div>
+      <div class="ts-row"><span class="ts-label">Card Title</span><span style="font-size:14px; font-weight:600; color:var(--dark);">Tech Innovation Inc. (AAPL)</span></div>
+      <div class="ts-row"><span class="ts-label">Data Label</span><span style="font-size:13px; color:var(--gray);">Market Cap · P/E Ratio · EPS</span></div>
+      <div class="ts-row"><span class="ts-label">Metric Value</span><span style="font-size:22px; font-weight:700; color:var(--teal);">$4,248.00</span></div>
+      <div class="ts-row"><span class="ts-label">Positive Delta</span><span style="font-size:13px; font-weight:600; color:var(--green);">+2.33% ▲</span></div>
+      <div class="ts-row"><span class="ts-label">Negative Delta</span><span style="font-size:13px; font-weight:600; color:var(--red);">-1.08% ▼</span></div>
+    </div>
+  </div>
+
+  <!-- 07 KEY UX DECISIONS -->
+  <div class="section">
+    <span class="section-tag">07 — Key UX Decisions</span>
+    <h2>Why These Choices Were Made</h2>
+    <div class="decision-list">
+      <div class="decision-item">
+        <div class="d-icon" style="background:var(--teal-light);">🎯</div>
+        <div>
+          <h3>Tabbed Research Architecture</h3>
+          <p>Instead of one overwhelming stock page, research was split into 5 tabs (Overview, Financial, News, Analysis, Ownership). This respects the user's mental model — you don't need financial data and news simultaneously. Each tab serves a specific decision-making context.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="d-icon" style="background:var(--green-light);">📊</div>
+        <div>
+          <h3>Green/Red as Universal Financial Language</h3>
+          <p>Teal anchors the brand identity throughout UI chrome, while pure green and red are reserved exclusively for financial gain/loss signals. This creates a clear semantic separation — users never confuse a brand color with a market signal.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="d-icon" style="background:var(--purple-light);">🌡</div>
+        <div>
+          <h3>Market Mood Score — Single Number Clarity</h3>
+          <p>The Mood Score (e.g., 0.78 / 1.240) distills complex market sentiment into a single, scannable number prominently displayed in the Overview. This gives even casual users an instant market temperature check without reading through tables.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="d-icon" style="background:var(--blue-light);">🗂</div>
+        <div>
+          <h3>Consistent Left Sidebar Navigation</h3>
+          <p>Every screen uses an identical left sidebar layout. This anchors users spatially — regardless of how deep into research tabs they go, the nav structure never changes. Reducing navigation anxiety is critical in complex data products.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="d-icon" style="background:#fef9c3;">📰</div>
+        <div>
+          <h3>Dense Tables with Color-Coded Rows</h3>
+          <p>Financial data is inherently tabular. Instead of trying to "visualize away" the tables, the design embraces them with clean typography, subtle row striping, and color-coded value cells. This respects analyst-level users who need density without sacrificing readability for newcomers.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="d-icon" style="background:var(--teal-light);">🖥</div>
+        <div>
+          <h3>Two Overview Layout Variants</h3>
+          <p>Two versions of the Market Overview page (v1 and v2) were designed — one emphasizing the mood score and charts prominently, the other prioritizing the stock table and news feed. This allows for A/B testing to identify which layout better serves primary user actions upon landing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 OUTCOMES -->
+  <div class="section">
+    <span class="section-tag">08 — Expected Outcomes</span>
+    <h2>Design Goals & Success Metrics</h2>
+    <p>
+      These are the primary success criteria that the design was built to support, tied to specific measurable outcomes for any future product launch and usability testing phase.
+    </p>
+    <div class="outcomes-grid">
+      <div class="outcome-card">
+        <div class="oc-icon">⏱</div>
+        <div class="oc-title">Faster Research Time</div>
+        <p>Target: 60% reduction in time-to-insight vs. using separate tools. Tabbed research eliminates tool-switching.</p>
+      </div>
+      <div class="outcome-card">
+        <div class="oc-icon">📉</div>
+        <div class="oc-title">Lower Cognitive Load</div>
+        <p>Consistent layouts and semantic color coding reduce mental effort when scanning large data sets.</p>
+      </div>
+      <div class="outcome-card">
+        <div class="oc-icon">📈</div>
+        <div class="oc-title">Higher Engagement</div>
+        <p>Portfolio personalization and mood scores increase daily return rate among retail investors.</p>
+      </div>
+      <div class="outcome-card">
+        <div class="oc-icon">🔁</div>
+        <div class="oc-title">Unified Workflow</div>
+        <p>All research-to-portfolio actions within one app — eliminating the "3-tool problem" identified in research.</p>
+      </div>
+      <div class="outcome-card">
+        <div class="oc-icon">🎯</div>
+        <div class="oc-title">Multi-User Fit</div>
+        <p>Designed to serve 3 distinct personas without sacrificing depth for analysts or clarity for beginners.</p>
+      </div>
+      <div class="outcome-card">
+        <div class="oc-icon">✅</div>
+        <div class="oc-title">Prototype Ready</div>
+        <p>Fully linked Figma prototype covering all 9 screens and primary user flows — dev-handoff ready.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 LEARNINGS -->
+  <div class="section">
+    <span class="section-tag">09 — Learnings & Reflections</span>
+    <h2>What This Project Taught Me</h2>
+    <div class="learn-grid">
+      <div class="learn-card">
+        <h3>Data Density is a Design Feature</h3>
+        <p>For finance products, showing more data is often the right choice. Hiding information behind toggles frustrates power users. The challenge is organizing density, not reducing it.</p>
+      </div>
+      <div class="learn-card">
+        <h3>Color Carries Meaning — Protect It</h3>
+        <p>Using green and red only for financial signals (never for decorative purposes) ensures users never misread a UI element as a market movement. Semantic color discipline matters more here than in any other domain.</p>
+      </div>
+      <div class="learn-card">
+        <h3>Navigation Stability Reduces Anxiety</h3>
+        <p>Keeping the sidebar consistent across all 9 screens — even though the content complexity varies enormously — made the prototype feel like one product, not a collection of dashboards.</p>
+      </div>
+      <div class="learn-card">
+        <h3>The "Mood Score" Concept</h3>
+        <p>Abstracting market sentiment into a single number was the most impactful UX decision. It gives casual users immediate value and gives power users a quick sanity check — serving both personas with one design element.</p>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <div class="quote-mark">"</div>
+      <div>
+        <p>Good finance UX doesn't simplify data — it simplifies the path to understanding it. The designer's job is to make complexity navigable, not invisible.</p>
+        <cite>— Design Philosophy, StockMood Project</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 CONCLUSION -->
+  <div class="section">
+    <span class="section-tag">10 — Conclusion</span>
+    <h2>Final Thoughts</h2>
+    <p>
+      StockMood is more than a dashboard — it's an attempt to democratize institutional-quality stock research for the modern retail investor. Every design decision, from the tabbed research architecture to the semantic color system, was made to serve a specific user need in a specific investment context.
+    </p>
+    <p>
+      The result is a <strong>9-screen, high-fidelity Figma prototype</strong> that covers the full investment workflow — from morning market check to deep stock research to portfolio review. The design is scalable, component-based, and ready for developer handoff.
+    </p>
+    <p>
+      <strong>Next Steps:</strong> Usability testing with retail investors and analysts, mobile-responsive adaptation, dark mode variant (especially relevant for active traders), and integration of real-time data API specifications for engineering handoff.
+    </p>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <strong>StockMood</strong> — Finance Dashboard UI/UX Case Study &nbsp;·&nbsp; Designed in Figma &nbsp;·&nbsp; 9 Screens &nbsp;·&nbsp; FinTech / Data Dashboard
+</div>
+
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Case Study — Industrial AC Control Panel UI · Adroit Control Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f0e;--bg2:#111413;--bg3:#161a18;--bg4:#1c211f;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --green:#22c55e;--green2:#16a34a;--green-light:rgba(34,197,94,0.08);--green-glow:rgba(34,197,94,0.15);
+  --red:#ef4444;--red-light:rgba(239,68,68,0.08);
+  --amber:#f59e0b;--amber-light:rgba(245,158,11,0.08);
+  --white:#f8faf9;--muted:#6b7a72;--muted2:#3d4a42;
+  --text:#e8ede9;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.7;}
+::-webkit-scrollbar{width:2px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--green);border-radius:2px;}
+
+/* ── COVER ── */
+.cover{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 420px;
+  position:relative;
+  overflow:hidden;
+}
+.cover-left{
+  padding:80px 70px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  position:relative;
+  z-index:1;
+}
+.cover-right{
+  background:var(--bg3);
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:48px 36px;
+  gap:16px;
+  position:relative;
+  overflow:hidden;
+}
+.cover-right::before{
+  content:'';
+  position:absolute;
+  bottom:-80px;right:-80px;
+  width:300px;height:300px;
+  border:50px solid rgba(34,197,94,0.06);
+  border-radius:50%;
+}
+
+/* Animated grid bg */
+.bg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(34,197,94,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,197,94,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  animation:gridShift 30s linear infinite;
+}
+@keyframes gridShift{0%{transform:translateY(0);}100%{transform:translateY(48px);}}
+.glow-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+.go1{width:400px;height:400px;background:radial-gradient(circle,rgba(34,197,94,0.07),transparent 70%);top:-100px;left:-100px;animation:gFloat 10s ease-in-out infinite;}
+.go2{width:300px;height:300px;background:radial-gradient(circle,rgba(34,197,94,0.04),transparent 70%);bottom:50px;right:100px;animation:gFloat 8s ease-in-out infinite;animation-delay:-4s;}
+@keyframes gFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+
+/* Cover content */
+.cover-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--green);border:1px solid rgba(34,197,94,0.25);
+  padding:5px 14px;border-radius:100px;
+  margin-bottom:24px;
+  animation:fadeUp .8s .1s both;
+}
+.cover-tag .pulse{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0.4);}50%{opacity:.6;box-shadow:0 0 0 6px rgba(34,197,94,0);}}
+.cover-company{
+  font-family:'DM Mono',monospace;font-size:12px;
+  color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:10px;
+  animation:fadeUp .8s .2s both;
+}
+.cover h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(36px,5vw,62px);
+  font-weight:800;line-height:1.05;
+  letter-spacing:-1.5px;color:var(--white);
+  margin-bottom:20px;
+  animation:fadeUp .8s .3s both;
+}
+.cover h1 em{font-style:normal;color:var(--green);}
+.cover-desc{
+  font-size:16px;font-weight:300;color:var(--muted);
+  max-width:480px;line-height:1.75;margin-bottom:36px;
+  animation:fadeUp .8s .45s both;
+}
+.cover-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:44px;animation:fadeUp .8s .55s both;}
+.cpill{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);border:1px solid var(--border2);
+  padding:4px 12px;border-radius:100px;
+}
+.cover-meta{
+  display:flex;gap:36px;flex-wrap:wrap;
+  padding-top:32px;border-top:1px solid var(--border);
+  animation:fadeUp .8s .65s both;
+}
+.cm-item strong{display:block;font-size:18px;font-weight:700;font-family:'Syne',sans-serif;color:var(--white);margin-bottom:3px;}
+.cm-item strong span{color:var(--green);}
+.cm-item p{font-size:12px;color:var(--muted);}
+
+/* Panel mockup on right */
+.panel-mock{
+  width:100%;
+  background:var(--bg4);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  z-index:1;
+}
+.pm-bar{
+  background:var(--bg3);
+  padding:10px 14px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.pm-logo{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:500;}
+.pm-dots{display:flex;gap:5px;margin-left:auto;}
+.pm-dot{width:8px;height:8px;border-radius:50%;}
+.pm-body{padding:14px;}
+.pm-title{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;letter-spacing:.5px;}
+.pm-row{
+  display:grid;grid-template-columns:1fr auto auto auto;
+  gap:8px;align-items:center;padding:7px 0;
+  border-bottom:1px solid var(--border);font-size:10px;
+}
+.pm-row:last-child{border-bottom:none;}
+.pm-label{color:var(--muted);font-family:'DM Mono',monospace;}
+.pm-badge{
+  font-size:8px;font-family:'DM Mono',monospace;
+  padding:2px 7px;border-radius:4px;font-weight:500;
+}
+.pm-on{background:rgba(34,197,94,.15);color:var(--green);}
+.pm-off{background:rgba(100,116,139,.1);color:#64748b;}
+.pm-auto{background:rgba(59,130,246,.1);color:#60a5fa;}
+.pm-manual{background:rgba(245,158,11,.1);color:#fbbf24;}
+.pm-toggle{
+  width:28px;height:14px;border-radius:7px;
+  position:relative;cursor:pointer;transition:background .3s;
+}
+.pm-toggle.on{background:var(--green);}
+.pm-toggle.off{background:var(--border2);}
+.pm-toggle::after{
+  content:'';position:absolute;top:2px;
+  width:10px;height:10px;background:#fff;border-radius:50%;
+  transition:left .3s;
+}
+.pm-toggle.on::after{left:16px;}
+.pm-toggle.off::after{left:2px;}
+.pm-footer{
+  background:var(--bg3);border-top:1px solid var(--border);
+  padding:8px 14px;display:flex;justify-content:space-between;align-items:center;
+}
+.pm-status{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);}
+.pm-mode{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+
+/* System failure card */
+.sys-card{
+  width:100%;
+  background:#1a0a0a;border:1px solid rgba(239,68,68,.3);
+  border-radius:10px;padding:16px;position:relative;z-index:1;
+  text-align:center;
+}
+.sys-icon{font-size:24px;margin-bottom:6px;}
+.sys-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px;}
+.sys-desc{font-size:11px;color:rgba(239,68,68,.6);font-family:'DM Mono',monospace;margin-bottom:10px;}
+.sys-btn{
+  background:var(--red);color:#fff;font-size:10px;font-weight:700;
+  padding:5px 14px;border-radius:5px;display:inline-block;
+  font-family:'Syne',sans-serif;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1100px;margin:0 auto;padding:0 64px;}
+.sec{padding:88px 0;border-top:1px solid var(--border);}
+.slbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.slbl::before{content:'';width:18px;height:1px;background:var(--green);}
+.stitle{font-family:'Syne',sans-serif;font-size:clamp(30px,3.5vw,46px);font-weight:800;letter-spacing:-1.5px;color:var(--white);line-height:1.1;margin-bottom:10px;}
+.ssub{font-size:15px;font-weight:300;color:var(--muted);max-width:480px;line-height:1.75;}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .65s ease,transform .65s ease;}
+.rv.vis{opacity:1;transform:translateY(0);}
+.rl{opacity:0;transform:translateX(-30px);transition:opacity .65s ease,transform .65s ease;}
+.rl.vis{opacity:1;transform:translateX(0);}
+.rr{opacity:0;transform:translateX(30px);transition:opacity .65s ease,transform .65s ease;}
+.rr.vis{opacity:1;transform:translateX(0);}
+.d1{transition-delay:.08s;}.d2{transition-delay:.16s;}.d3{transition-delay:.24s;}.d4{transition-delay:.32s;}.d5{transition-delay:.4s;}
+
+/* ── OVERVIEW STRIP ── */
+.overview-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  margin-top:40px;
+}
+.os-cell{background:var(--bg2);padding:22px;text-align:center;}
+.os-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--green);display:block;line-height:1;}
+.os-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ── CHALLENGE ── */
+.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px;}
+.ch-card{border-radius:14px;padding:24px;}
+.ch-prob{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);}
+.ch-sol{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);}
+.ch-card h3{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.ch-prob h3{color:var(--red);}
+.ch-sol h3{color:var(--green);}
+.ch-card ul{padding-left:16px;}
+.ch-card ul li{font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.55;}
+
+/* ── SCREENS GRID ── */
+.screens-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .3s,transform .3s;}
+.sc:hover{border-color:var(--border2);transform:translateY(-3px);}
+.sc-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3);}
+.sc-num{width:22px;height:22px;background:var(--green);color:var(--bg);font-size:9px;font-weight:800;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Syne',sans-serif;}
+.sc-head h3{font-size:12px;font-weight:700;color:var(--white);margin:0;}
+.sc-body{padding:14px 16px;}
+.sc-body p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.stag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:10px;margin:2px;border:1px solid rgba(34,197,94,.15);}
+.stag.red{background:var(--red-light);color:var(--red);border-color:rgba(239,68,68,.2);}
+.stag.amber{background:var(--amber-light);color:var(--amber);border-color:rgba(245,158,11,.2);}
+.stag.blue{background:rgba(59,130,246,.08);color:#60a5fa;border-color:rgba(59,130,246,.2);}
+
+/* ── DESIGN SYSTEM ── */
+.palette{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.sw{text-align:center;}
+.sw-box{width:54px;height:54px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,.06);}
+.sw span{font-size:10px;color:var(--muted);display:block;font-weight:500;}
+.sw small{font-size:9px;color:var(--muted2);}
+.type-table{margin-top:20px;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.tt-row{display:flex;align-items:baseline;gap:16px;padding:11px 18px;border-bottom:1px solid var(--bg3);}
+.tt-row:last-child{border-bottom:none;}
+.tt-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);width:130px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── UX DECISIONS ── */
+.ux-list{margin-top:24px;}
+.ux-item{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--border);}
+.ux-item:last-child{border-bottom:none;}
+.ux-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;margin-top:2px;}
+.ux-item h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin:0 0 6px;}
+.ux-item p{font-size:13px;color:var(--muted);margin:0;line-height:1.65;}
+
+/* ── USER FLOW ── */
+.flow-wrap{margin-top:28px;overflow-x:auto;}
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;row-gap:10px;}
+.fs{
+  background:var(--bg3);color:var(--text);
+  font-size:11px;font-weight:600;font-family:'DM Mono',monospace;
+  padding:8px 14px;border-radius:7px;
+  border:1px solid var(--border2);
+  white-space:nowrap;flex-shrink:0;
+}
+.fs.green{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.25);}
+.fs.red{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.2);}
+.fa{font-size:14px;color:var(--muted2);padding:0 6px;flex-shrink:0;}
+
+/* ── SPECS TABLE ── */
+.specs-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13px;}
+.specs-table th{background:var(--bg3);color:rgba(255,255,255,.5);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;text-align:left;font-family:'DM Mono',monospace;}
+.specs-table td{padding:10px 16px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;}
+.specs-table tr:last-child td{border-bottom:none;}
+.specs-table tr:nth-child(even) td{background:var(--bg2);}
+.specs-table .sname{font-weight:600;color:var(--white);}
+.specs-table .gdot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:6px;}
+
+/* ── IMPACT ── */
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;}
+.ic{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .3s,transform .3s;}
+.ic:hover{border-color:rgba(34,197,94,.2);transform:translateY(-3px);}
+.ic-icon{font-size:24px;margin-bottom:12px;}
+.ic-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.ic p{font-size:12px;color:var(--muted);line-height:1.6;margin:0;}
+
+/* ── LEARNINGS ── */
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;}
+.lc{border-top:2px solid var(--green);background:var(--bg2);border-radius:0 0 12px 12px;padding:18px;}
+.lc h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin:0 0 6px;}
+.lc p{font-size:13px;color:var(--muted);margin:0;line-height:1.6;}
+
+/* ── QUOTE ── */
+.quote-box{
+  background:var(--bg3);border:1px solid rgba(34,197,94,.15);
+  border-radius:16px;padding:36px;margin-top:28px;
+  display:flex;gap:20px;align-items:flex-start;
+  position:relative;overflow:hidden;
+}
+.quote-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--green);}
+.qmark{font-size:52px;line-height:1;color:var(--green);font-weight:800;flex-shrink:0;margin-top:-10px;opacity:.4;}
+.quote-box p{color:rgba(248,250,249,.75);font-size:15px;line-height:1.75;margin:0;font-weight:300;}
+.quote-box cite{display:block;margin-top:12px;font-size:12px;color:var(--green);font-style:normal;font-weight:600;font-family:'DM Mono',monospace;}
+
+/* ── FOOTER ── */
+.doc-footer{background:var(--bg2);border-top:1px solid var(--border);text-align:center;padding:28px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);}
+.doc-footer strong{color:var(--green);}
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="bg-grid"></div>
+  <div class="glow-orb go1"></div>
+  <div class="glow-orb go2"></div>
+
+  <div class="cover-left">
+    <div class="cover-tag"><span class="pulse"></span>Real-World Industrial Project</div>
+    <p class="cover-company">Adroit Control Engineering Pvt. Ltd</p>
+    <h1>Industrial AC<br>Control <em>Panel UI</em></h1>
+    <p class="cover-desc">A touchscreen HMI (Human Machine Interface) designed for an industrial electrical control panel — enabling engineers to monitor, control, and automate multiple AC units from a single unified screen.</p>
+    <div class="cover-pills">
+      <span class="cpill">HMI / SCADA UI</span>
+      <span class="cpill">Industrial Design</span>
+      <span class="cpill">Figma</span>
+      <span class="cpill">Real Project</span>
+      <span class="cpill">Control Systems</span>
+    </div>
+    <div class="cover-meta">
+      <div class="cm-item"><strong>12<span>+</span></strong><p>Screens Designed</p></div>
+      <div class="cm-item"><strong>2<span></span></strong><p>Control Modes</p></div>
+      <div class="cm-item"><strong>Live<span></span></strong><p>Deployed Product</p></div>
+      <div class="cm-item"><strong>Solo<span></span></strong><p>Designer</p></div>
+    </div>
+  </div>
+
+  <div class="cover-right">
+    <!-- Live panel mockup -->
+    <div class="panel-mock">
+      <div class="pm-bar">
+        <span style="width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>
+        <span class="pm-logo">ADROIT · AC PANEL v2.1</span>
+        <div class="pm-dots">
+          <div class="pm-dot" style="background:#22c55e;"></div>
+          <div class="pm-dot" style="background:#3b82f6;"></div>
+          <div class="pm-dot" style="background:#f59e0b;"></div>
+        </div>
+      </div>
+      <div class="pm-body">
+        <div class="pm-title">UNIT STATUS · ALL ZONES</div>
+        <div class="pm-row">
+          <span class="pm-label">AC Unit 01</span>
+          <span class="pm-badge pm-auto">AUTO</span>
+          <span class="pm-badge pm-on">ON</span>
+          <div class="pm-toggle on"></div>
+        </div>
+        <div class="pm-row">
+          <span class="pm-label">AC Unit 02</span>
+          <span class="pm-badge pm-manual">MANUAL</span>
+          <span class="pm-badge pm-on">ON</span>
+          <div class="pm-toggle on"></div>
+        </div>
+        <div class="pm-row">
+          <span class="pm-label">AC Unit 03</span>
+          <span class="pm-badge pm-auto">AUTO</span>
+          <span class="pm-badge pm-off">OFF</span>
+          <div class="pm-toggle off"></div>
+        </div>
+        <div class="pm-row">
+          <span class="pm-label">AC Unit 04</span>
+          <span class="pm-badge pm-auto">AUTO</span>
+          <span class="pm-badge pm-on">ON</span>
+          <div class="pm-toggle on"></div>
+        </div>
+        <div class="pm-row">
+          <span class="pm-label">AC Unit 05</span>
+          <span class="pm-badge pm-manual">MANUAL</span>
+          <span class="pm-badge pm-off">OFF</span>
+          <div class="pm-toggle off"></div>
+        </div>
+      </div>
+      <div class="pm-footer">
+        <span class="pm-status">● SYSTEM ONLINE</span>
+        <span class="pm-mode">3/5 ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- System failure card -->
+    <div class="sys-card">
+      <div class="sys-icon">⚠️</div>
+      <div class="sys-title">SYSTEM FAILURE</div>
+      <div class="sys-desc">// critical_error · unit_04_fault</div>
+      <div class="sys-btn">ACKNOWLEDGE</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="wrap">
+
+  <!-- 01 OVERVIEW -->
+  <div class="sec">
+    <div class="slbl rv">01 — Overview</div>
+    <h2 class="stitle rv">What is This Project?</h2>
+    <p class="ssub rv">A real-world HMI (Human Machine Interface) UI designed during my tenure at Adroit Control Engineering — a company that builds industrial electrical control panels.</p>
+    <p class="rv" style="font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;margin-top:14px;max-width:700px;">
+      Industrial electrical panels used in factories and commercial buildings house multiple AC units. Traditionally, these were controlled by physical switches on the panel itself — operators had to manually check each unit. This project involved designing a <strong style="color:var(--white);">touchscreen HMI UI</strong> that replaces physical controls with a single digital interface, enabling engineers to monitor and control all AC units from one screen.
+    </p>
+    <div class="overview-strip rv">
+      <div class="os-cell"><span class="os-val">12+</span><span class="os-lbl">Screens Designed</span></div>
+      <div class="os-cell"><span class="os-val">2</span><span class="os-lbl">Control Modes</span></div>
+      <div class="os-cell"><span class="os-val">6+</span><span class="os-lbl">Feature Modules</span></div>
+      <div class="os-cell"><span class="os-val">Real</span><span class="os-lbl">Deployed Product</span></div>
+    </div>
+  </div>
+
+  <!-- 02 CONTEXT -->
+  <div class="sec">
+    <div class="slbl rv">02 — Industry Context</div>
+    <h2 class="stitle rv">Understanding the Domain</h2>
+    <p class="ssub rv">HMI (Human Machine Interface) design for industrial control systems is one of the most specialized UI disciplines — where errors can cause equipment failure or safety hazards.</p>
+    <p class="rv" style="font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;margin-top:14px;max-width:700px;">
+      Adroit Control Engineering designs and manufactures industrial electrical panels used in factories, data centres, hospitals, and commercial complexes. These panels contain multiple AC units that regulate temperature in critical environments. Each unit needs to be individually controllable — both automatically (based on sensor data) and manually (by operator override). The UI had to run on a <strong style="color:var(--white);">touchscreen embedded in the panel door</strong>, which means every element had to be large enough for glove-friendly touch, readable under industrial lighting, and fast to operate under pressure.
+    </p>
+    <div style="margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      <div class="ic rv d1">
+        <div class="ic-icon">🏭</div>
+        <div class="ic-title">Industrial Environment</div>
+        <p>Panel mounted in factories — high-noise, low-lighting, glove operation conditions.</p>
+      </div>
+      <div class="ic rv d2">
+        <div class="ic-icon">⚡</div>
+        <div class="ic-title">Mission Critical</div>
+        <p>AC failure in server rooms or hospitals is a serious operational risk. The UI must prevent errors.</p>
+      </div>
+      <div class="ic rv d3">
+        <div class="ic-icon">👷</div>
+        <div class="ic-title">Non-Tech Users</div>
+        <p>Operators are electrical engineers or technicians — not software users. Clarity > aesthetics.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 PROBLEM -->
+  <div class="sec">
+    <div class="slbl rv">03 — Problem & Solution</div>
+    <h2 class="stitle rv">What Problem Does This Solve?</h2>
+    <p class="ssub rv">Replacing physical switch panels with a digital HMI that gives complete control, status visibility, and automation in one screen.</p>
+    <div class="ch-grid">
+      <div class="ch-card ch-prob rv">
+        <h3>⚠ Before — Physical Panel Problems</h3>
+        <ul>
+          <li>No single view of all AC unit statuses — operators had to check each unit separately</li>
+          <li>Physical switches gave no feedback — was the unit ON or just switched?</li>
+          <li>No automation — all switching was manual, requiring constant operator presence</li>
+          <li>No error alerts — faults went unnoticed until equipment damage occurred</li>
+          <li>No logs or history — impossible to audit what happened when</li>
+          <li>Factory reset required physical panel access and technical knowledge</li>
+        </ul>
+      </div>
+      <div class="ch-card ch-sol rv">
+        <h3>✅ After — HMI UI Solution</h3>
+        <ul>
+          <li>Single dashboard shows all AC units, their ON/OFF state and mode at a glance</li>
+          <li>Clear visual feedback — green/red indicators, toggle states, real-time status</li>
+          <li>Auto mode — units respond to sensor data without operator intervention</li>
+          <li>System failure screen with acknowledgement — immediate fault visibility</li>
+          <li>Trends page — historical data visualization for auditing and diagnostics</li>
+          <li>Factory default reset via secure confirmation screen with login protection</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 USER FLOW -->
+  <div class="sec">
+    <div class="slbl rv">04 — User Flow & Information Architecture</div>
+    <h2 class="stitle rv">How the System Works</h2>
+    <p class="ssub rv">The complete operator journey — from panel startup to controlling individual AC units and responding to system faults.</p>
+
+    <div style="margin-top:28px;">
+      <h3 style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Primary Control Flow</h3>
+      <div class="flow-wrap rv">
+        <div class="flow">
+          <div class="fs green">Panel Power ON</div><div class="fa">→</div>
+          <div class="fs">Login Screen</div><div class="fa">→</div>
+          <div class="fs green">Main Dashboard</div><div class="fa">→</div>
+          <div class="fs">Select AC Unit</div><div class="fa">→</div>
+          <div class="fs">Choose Mode</div><div class="fa">→</div>
+          <div class="fs green">Toggle ON / OFF</div><div class="fa">→</div>
+          <div class="fs">Confirm Action</div>
+        </div>
+      </div>
+
+      <h3 style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:28px;margin-bottom:14px;">Fault Handling Flow</h3>
+      <div class="flow-wrap rv">
+        <div class="flow">
+          <div class="fs">System Detects Fault</div><div class="fa">→</div>
+          <div class="fs red">System Failure Screen</div><div class="fa">→</div>
+          <div class="fs">Operator Acknowledges</div><div class="fa">→</div>
+          <div class="fs">Unit Isolated</div><div class="fa">→</div>
+          <div class="fs green">System Restores</div>
+        </div>
+      </div>
+
+      <h3 style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:28px;margin-bottom:14px;">All Available Modules</h3>
+      <table class="specs-table rv">
+        <thead><tr><th>Module</th><th>Purpose</th><th>Access Level</th></tr></thead>
+        <tbody>
+          <tr><td><span class="gdot"></span><span class="sname">Main Dashboard</span></td><td>All AC unit statuses, ON/OFF toggles, Auto/Manual mode selection</td><td>All Users</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Login Screen</span></td><td>Secure authentication before panel access</td><td>All Users</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Factory Default</span></td><td>Reset all settings to default — with confirmation modal</td><td>Admin Only</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Recipe Page</span></td><td>Saved configuration presets for different operational scenarios</td><td>Operator+</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Trends Page</span></td><td>Historical charts of AC performance, temperature, on-time data</td><td>All Users</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Help Page</span></td><td>On-screen manual and operational guidance</td><td>All Users</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">User Page</span></td><td>User management — add/remove operators, set permissions</td><td>Admin Only</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">System Failure</span></td><td>Full-screen fault alert with red theme and acknowledgement CTA</td><td>Auto-triggered</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">Success States</span></td><td>Confirmation screens after successful actions (save, reset, login)</td><td>All Users</td></tr>
+          <tr><td><span class="gdot"></span><span class="sname">GPS / Location</span></td><td>Panel location tagging for multi-site management</td><td>Admin Only</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 05 SCREENS -->
+  <div class="sec">
+    <div class="slbl rv">05 — Screen-by-Screen Breakdown</div>
+    <h2 class="stitle rv">Key Screens & Design Decisions</h2>
+    <div class="screens-grid">
+
+      <div class="sc rv d1">
+        <div class="sc-head"><div class="sc-num">1</div><h3>Login Screen</h3></div>
+        <div class="sc-body">
+          <p>Clean authentication screen with username + password fields and a login button. Ensures unauthorized operators cannot access or modify settings. Simple, distraction-free layout for quick access.</p>
+          <span class="stag">Secure access</span><span class="stag">Minimal UI</span><span class="stag">Quick entry</span>
+        </div>
+      </div>
+
+      <div class="sc rv d2">
+        <div class="sc-head"><div class="sc-num">2</div><h3>Main Dashboard</h3></div>
+        <div class="sc-body">
+          <p>The primary control screen. Lists all AC units with their real-time status (ON/OFF), operating mode (Auto/Manual), and a toggle switch per unit. Green = active, grey = inactive. Status at a glance for all units simultaneously.</p>
+          <span class="stag">All units visible</span><span class="stag">Toggle control</span><span class="stag amber">Mode selector</span>
+        </div>
+      </div>
+
+      <div class="sc rv d3">
+        <div class="sc-head"><div class="sc-num">3</div><h3>Auto Mode</h3></div>
+        <div class="sc-body">
+          <p>When set to Auto, the unit responds to sensor inputs — temperature thresholds, timers, or external signals. The operator sets the parameters and the system manages itself. No manual intervention required during normal operation.</p>
+          <span class="stag">Sensor-driven</span><span class="stag">Timer-based</span><span class="stag">Hands-free</span>
+        </div>
+      </div>
+
+      <div class="sc rv d4">
+        <div class="sc-head"><div class="sc-num">4</div><h3>Manual Mode</h3></div>
+        <div class="sc-body">
+          <p>Operator has direct, immediate control over each AC unit regardless of sensor readings. Used for testing, maintenance, or override scenarios. A clear visual distinction from Auto mode prevents accidental mode mix-up.</p>
+          <span class="stag amber">Manual override</span><span class="stag">Direct control</span><span class="stag">Maintenance use</span>
+        </div>
+      </div>
+
+      <div class="sc rv d5">
+        <div class="sc-head"><div class="sc-num">5</div><h3>System Failure Screen</h3></div>
+        <div class="sc-body">
+          <p>Full-screen red alert shown when a critical fault is detected. Cannot be dismissed accidentally — requires explicit "Acknowledge" button press. Designed to be impossible to miss even in bright factory lighting.</p>
+          <span class="stag red">Critical alert</span><span class="stag red">Full-screen</span><span class="stag red">Force ack.</span>
+        </div>
+      </div>
+
+      <div class="sc rv d1">
+        <div class="sc-head"><div class="sc-num">6</div><h3>Factory Default</h3></div>
+        <div class="sc-body">
+          <p>Confirmation modal for resetting all settings to factory defaults. Two-step process — description text + explicit confirm button — prevents accidental resets. Destructive actions always require deliberate confirmation.</p>
+          <span class="stag amber">Destructive action</span><span class="stag">2-step confirm</span><span class="stag">Admin only</span>
+        </div>
+      </div>
+
+      <div class="sc rv d2">
+        <div class="sc-head"><div class="sc-num">7</div><h3>Recipe Page</h3></div>
+        <div class="sc-body">
+          <p>Saved configuration presets that allow operators to quickly apply standard settings for different operational scenarios (e.g., "Night Mode," "Peak Hours," "Weekend Schedule") without manually configuring each unit.</p>
+          <span class="stag">Config presets</span><span class="stag">Quick apply</span><span class="stag blue">Scenario-based</span>
+        </div>
+      </div>
+
+      <div class="sc rv d3">
+        <div class="sc-head"><div class="sc-num">8</div><h3>Trends Page</h3></div>
+        <div class="sc-body">
+          <p>Historical data charts showing AC unit performance over time — on/off cycles, temperature readings, runtime hours. Used for diagnostics, energy audits, and predictive maintenance planning by facility managers.</p>
+          <span class="stag blue">Data charts</span><span class="stag">Diagnostics</span><span class="stag">Energy audit</span>
+        </div>
+      </div>
+
+      <div class="sc rv d4">
+        <div class="sc-head"><div class="sc-num">9</div><h3>Help & User Pages</h3></div>
+        <div class="sc-body">
+          <p>Help page provides on-screen operational manual. User page allows admins to manage operator accounts, assign roles, and set permission levels — ensuring only authorized personnel can change critical settings.</p>
+          <span class="stag">On-screen manual</span><span class="stag amber">User management</span><span class="stag">Permissions</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 06 DESIGN SYSTEM -->
+  <div class="sec">
+    <div class="slbl rv">06 — Design System</div>
+    <h2 class="stitle rv">Visual Language for Industrial UI</h2>
+    <p class="ssub rv">Designing for an industrial control panel demands a completely different visual approach than consumer apps — every choice is functional, not decorative.</p>
+
+    <h3 style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:28px;margin-bottom:16px;">Color System — Semantic Color Coding</h3>
+    <div class="palette rv">
+      <div class="sw"><div class="sw-box" style="background:#22c55e;"></div><span>Active / ON</span><small>#22c55e</small></div>
+      <div class="sw"><div class="sw-box" style="background:#ef4444;"></div><span>Fault / OFF</span><small>#ef4444</small></div>
+      <div class="sw"><div class="sw-box" style="background:#f59e0b;"></div><span>Manual Mode</span><small>#f59e0b</small></div>
+      <div class="sw"><div class="sw-box" style="background:#3b82f6;"></div><span>Auto Mode</span><small>#3b82f6</small></div>
+      <div class="sw"><div class="sw-box" style="background:#111413;"></div><span>Panel BG</span><small>#111413</small></div>
+      <div class="sw"><div class="sw-box" style="background:#1c211f;border:1px solid rgba(255,255,255,.1);"></div><span>Card BG</span><small>#1c211f</small></div>
+      <div class="sw"><div class="sw-box" style="background:#f8faf9;"></div><span>Primary Text</span><small>#f8faf9</small></div>
+    </div>
+
+    <h3 style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:28px;margin-bottom:14px;">Typography — Readability First</h3>
+    <div class="type-table rv">
+      <div class="tt-row"><span class="tt-lbl">Screen Title</span><span style="font-size:20px;font-weight:800;font-family:'Syne',sans-serif;color:var(--white);">AC Control Panel</span></div>
+      <div class="tt-row"><span class="tt-lbl">Section Header</span><span style="font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:var(--white);">Unit Status Overview</span></div>
+      <div class="tt-row"><span class="tt-lbl">Data Label</span><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);">AC_UNIT_01 · ZONE_A</span></div>
+      <div class="tt-row"><span class="tt-lbl">Status Active</span><span style="font-family:'DM Mono',monospace;font-size:12px;color:#22c55e;font-weight:600;">● ONLINE · AUTO MODE</span></div>
+      <div class="tt-row"><span class="tt-lbl">Status Fault</span><span style="font-family:'DM Mono',monospace;font-size:12px;color:#ef4444;font-weight:600;">⚠ SYSTEM FAILURE · ACK REQUIRED</span></div>
+    </div>
+  </div>
+
+  <!-- 07 UX DECISIONS -->
+  <div class="sec">
+    <div class="slbl rv">07 — Key UX Decisions</div>
+    <h2 class="stitle rv">Why These Design Choices?</h2>
+    <div class="ux-list">
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:var(--green-light);">🟢</div>
+        <div>
+          <h3>Semantic Color — Green/Red Only for Status</h3>
+          <p>In industrial UI, colors carry life-or-death meaning. Green = running safely. Red = fault or danger. Amber = operator attention needed. Blue = automated. These colors are never used decoratively — each use is a functional signal. An operator glancing at the panel for 2 seconds must instantly know the system state.</p>
+        </div>
+      </div>
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:var(--green-light);">🔘</div>
+        <div>
+          <h3>Large Toggle Switches — Glove-Friendly Design</h3>
+          <p>Industrial operators often wear safety gloves. Standard mobile-style small toggle switches are impossible to operate accurately with gloves. Every interactive element in this UI is sized for gloved-finger use — toggle switches, mode buttons, and navigation elements are all generously sized with adequate touch targets.</p>
+        </div>
+      </div>
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:var(--red-light);">🚨</div>
+        <div>
+          <h3>Full-Screen System Failure — Cannot Be Missed</h3>
+          <p>When a fault occurs, the entire screen turns red and shows the System Failure screen. This is non-dismissable without deliberate acknowledgement. In an industrial setting, an operator must not be able to accidentally swipe away or ignore a critical fault. The full-screen takeover ensures the fault gets the operator's complete attention.</p>
+        </div>
+      </div>
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:var(--amber-light);">⚙️</div>
+        <div>
+          <h3>Auto vs Manual — Always Clearly Visible</h3>
+          <p>Every AC unit row shows its operating mode badge alongside its ON/OFF status. An operator must never have to guess "is this running on automation or did someone manually switch it?" Confusing Auto and Manual modes in an industrial setting can lead to equipment running when it shouldn't — or not running when it must.</p>
+        </div>
+      </div>
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:rgba(59,130,246,.1);">🔐</div>
+        <div>
+          <h3>Login + Admin Permissions — Safety by Design</h3>
+          <p>Not all operators should be able to change all settings. The login system and user management page ensure that only authorized personnel can access factory reset, recipe changes, or user management. Destructive actions (like factory default) also require a confirmation modal — preventing accidental critical operations.</p>
+        </div>
+      </div>
+      <div class="ux-item rv">
+        <div class="ux-icon" style="background:var(--green-light);">📊</div>
+        <div>
+          <h3>Trends Page — Data for Maintenance Teams</h3>
+          <p>Industrial equipment failure is expensive. The Trends page shows historical performance data that allows facility managers to identify patterns — a unit that turns off every day at 2pm might have a thermal issue. This moves the system from reactive (fixing failures) to predictive (preventing them).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 IMPACT -->
+  <div class="sec">
+    <div class="slbl rv">08 — Impact & Outcomes</div>
+    <h2 class="stitle rv">What This Design Achieves</h2>
+    <div class="impact-grid">
+      <div class="ic rv d1">
+        <div class="ic-icon">👁</div>
+        <div class="ic-title">Complete Visibility</div>
+        <p>All AC unit statuses visible on one screen — eliminating the need to physically inspect each unit in the panel.</p>
+      </div>
+      <div class="ic rv d2">
+        <div class="ic-icon">⚡</div>
+        <div class="ic-title">Faster Response</div>
+        <p>System faults are immediately visible on screen — drastically reducing fault detection and response time.</p>
+      </div>
+      <div class="ic rv d3">
+        <div class="ic-icon">🤖</div>
+        <div class="ic-title">Automation Ready</div>
+        <p>Auto mode reduces manual intervention — units self-manage based on sensor data, reducing operator workload.</p>
+      </div>
+      <div class="ic rv d4">
+        <div class="ic-icon">🔒</div>
+        <div class="ic-title">Secure Operations</div>
+        <p>Role-based access prevents unauthorized changes — only admins can access critical configuration settings.</p>
+      </div>
+      <div class="ic rv d5">
+        <div class="ic-icon">📈</div>
+        <div class="ic-title">Predictive Maintenance</div>
+        <p>Historical trends data enables proactive maintenance planning — reducing unexpected equipment downtime.</p>
+      </div>
+      <div class="ic rv d1">
+        <div class="ic-icon">🏭</div>
+        <div class="ic-title">Real Deployment</div>
+        <p>This UI was designed for an actual Adroit Control Engineering product — not a theoretical exercise.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 LEARNINGS -->
+  <div class="sec">
+    <div class="slbl rv">09 — Learnings & Reflections</div>
+    <h2 class="stitle rv">What This Project Taught Me</h2>
+    <div class="learn-grid">
+      <div class="lc rv d1">
+        <h3>Industrial UX Is a Completely Different Discipline</h3>
+        <p>Consumer app design principles don't always apply to industrial HMI. Operator safety, glove-use, high-noise environments, and critical state visibility take complete precedence over aesthetics or delight.</p>
+      </div>
+      <div class="lc rv d2">
+        <h3>Color Must Be Purely Functional</h3>
+        <p>In industrial UI, color is a language — not a style choice. Using green for decoration or red for emphasis outside of status contexts would create real operational confusion and potentially endanger equipment.</p>
+      </div>
+      <div class="lc rv d3">
+        <h3>Designing for Non-Digital Users</h3>
+        <p>Factory technicians are experts in electrical systems — not software. Every interaction had to be self-explanatory without tutorials, tooltips, or onboarding flows. Clarity and convention matter above all.</p>
+      </div>
+      <div class="lc rv d4">
+        <h3>Designing for Failure States First</h3>
+        <p>In consumer apps, error states are afterthoughts. In industrial systems, the error state is the most critical screen. Designing the System Failure screen was the starting point — not the last thing added.</p>
+      </div>
+    </div>
+
+    <div class="quote-box rv">
+      <div class="qmark">"</div>
+      <div>
+        <p>Industrial UI design taught me that the best interface is one that the user never has to think about — it just tells them exactly what they need to know, exactly when they need to know it. In critical systems, the design disappears and only the information remains.</p>
+        <cite>— Design Reflection · AC Control Panel Project · Adroit Control Engineering</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 CONCLUSION -->
+  <div class="sec">
+    <div class="slbl rv">10 — Conclusion</div>
+    <h2 class="stitle rv">Final Thoughts</h2>
+    <p style="font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;max-width:720px;" class="rv">
+      This project represents one of the most technically demanding UI design challenges I've worked on — designing for an environment where clarity, error prevention, and instant comprehension are non-negotiable. The AC Control Panel HMI demonstrates that UI/UX design is not just about making things look beautiful — it's about making complex systems <strong style="color:var(--white);">safe, efficient, and human-centered</strong>, even in the most demanding industrial environments.
+    </p>
+    <p style="font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;max-width:720px;margin-top:14px;" class="rv">
+      Working on a <strong style="color:var(--white);">real product for a real engineering company</strong> gave me a level of design rigor that no practice project can replicate. Every screen had to work — not just look good. This project is my most technically grounded piece of design work, and proof that UI/UX design plays a critical role even in traditional industrial engineering.
+    </p>
+    <div style="margin-top:32px;padding:24px;background:var(--bg3);border:1px solid rgba(34,197,94,.15);border-radius:14px;display:flex;gap:18px;align-items:center;" class="rv">
+      <div style="font-size:32px;">🏭</div>
+      <div>
+        <p style="color:var(--green);font-weight:600;font-size:12px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Real-World Project</p>
+        <p style="color:rgba(248,250,249,.6);font-size:13px;margin:0;">Designed during 6-month tenure as UI/UX Designer at <strong style="color:var(--white);">Adroit Control Engineering Pvt. Ltd</strong> — a company that manufactures industrial electrical control panel systems.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <strong>Industrial AC Control Panel UI</strong> — HMI Design Case Study &nbsp;·&nbsp; Adroit Control Engineering Pvt. Ltd &nbsp;·&nbsp; Designed in Figma &nbsp;·&nbsp; 12+ Screens
+</div>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.rv,.rl,.rr').forEach(el => obs.observe(el));
+
+// Stagger children
+document.querySelectorAll('.screens-grid, .impact-grid, .ch-grid, .learn-grid').forEach(container => {
+  container.querySelectorAll('.rv').forEach((child, i) => {
+    child.style.transitionDelay = (i * 0.07) + 's';
+  });
+});
+
+document.body.style.opacity='0';
+document.body.style.transition='opacity .5s';
+window.addEventListener('load',()=>document.body.style.opacity='1');
+</script>
+</body>
+</html>
